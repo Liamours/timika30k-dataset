@@ -2,6 +2,8 @@
 
 Reproducibility pipeline for timika-50k: assemble it from its 7 already-downloaded source datasets, drive labels/pseudo-labels, and produce the preprocessing variants below. Scaffolded 2026-09-03; the dataset session owns building this out, per this project's existing split between dataset construction/convention work and experiment execution.
 
+![2 examples per source: raw image, organ-region overlay (cyan), disease overlay (orange) where a label exists](sample_grid.png)
+
 **Documentation**: [DATASHEET.md](DATASHEET.md) (Gebru et al.'s 7-section
 format, populated with this project's own real facts, not a template) and
 [croissant.json](croissant.json) (MLCommons Croissant metadata, machine-
@@ -18,7 +20,7 @@ than a model repo:
 | Dependency spec (`pyproject.toml`) | Done |
 | Build code: assembly (phase 2 below) | Done, `src/timika50k_dataset/assembly/build_data.py` |
 | Build code: labels/pseudo-labels | Done, in `repo/timika50k_pseudolabels` (called into, not reimplemented here) |
-| Build code: preprocessing | 1 of 5 variants done, `analyses/timika50k_preprocessing` |
+| Build code: preprocessing | 2 of 5 variants done or running, `analyses/timika50k_preprocessing` + `src/timika50k_dataset/bone_suppression/` |
 | Evaluation/QC code | Done: 3-agent independent verification pattern used throughout (leakage, official-split fidelity, ratio integrity, box-mask geometry, confirmed-negative source rules), embedding-based anomaly detection (`src/timika50k_dataset/anomaly/`) |
 | "Pretrained model" equivalent (the finished artifact) | Done, `E:\dataset\timika-50k\` + `dataset/timika-50k/` project copy |
 | README with exact reproduction commands | Done, `src/timika50k_dataset/orchestrate.py` + Usage below |
@@ -96,13 +98,23 @@ finished the same day:
 - `src/timika50k_dataset/metadata/add_view_position.py`: added a
   `view_position` column to `preprocessed/manifest.csv`.
 - `DATASHEET.md`, `croissant.json`: this repo's own documentation.
+- `src/timika50k_dataset/samples/build_readme_grid.py`: builds
+  `sample_grid.png` above.
+- `src/timika50k_dataset/bone_suppression/`: PyTorch ResNet-BS
+  (Rajaraman et al. 2021), ported from the vendored Keras model and
+  verified against its predictions (`analyses/bone_suppression_sample/`);
+  runs directly on the already-512x512 preprocessed image, no extra
+  resize, output written to `E:\dataset\timika-50k\preprocessed_bone_suppressed\`
+  since C: was near capacity when this was built.
+- `src/timika50k_dataset/label_matching/`: disease labels re-registered
+  to `preprocessed/`'s own 512x512 grid (real masks: geometric transform
+  only; SAM/box-derived masks: re-segmented against the bone-suppressed
+  pixels rather than warped, since a stale mask would carry over whatever
+  bone confounding it had before suppression). Output at
+  `E:\dataset\timika-50k\preprocessed_labels\`.
 
-Real gap left: the orchestrator's own `--dry-run`/`--phases` logic and
-the assembly/sync phases are verified directly (see Usage above); the 6
-phases that shell out to the other 3 projects are verified only in that
-each was independently run to completion by hand earlier this session,
-not by an end-to-end orchestrator run since data/labels/preprocessed all
-already exist correctly and a real rerun would mean an unneeded ~30GB
-rebuild. The 4 remaining preprocessing variants (bone suppression, CLAHE,
-and their combination, plus a no-leakage crop+normalize variant) are
-separate, additive work, not started.
+The orchestrator has now been run end to end for real, not only
+dry-run-verified: phase 2 through view_position, 2026-09-04. The 4
+remaining preprocessing variants (CLAHE, bone suppression + CLAHE, and a
+no-leakage crop+normalize variant) are separate, additive work, not
+started; bone suppression itself (variant 3) is running.

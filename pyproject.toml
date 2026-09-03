@@ -16,6 +16,7 @@ dependencies = [
     "scikit-learn>=1.4",
     "umap-learn>=0.5.6",
     "matplotlib>=3.8",
+    "timika50k-pseudolabels",
 ]
 
 [dependency-groups]
@@ -27,6 +28,7 @@ dev = [
 torch = [{ index = "pytorch-cu130" }]
 torchvision = [{ index = "pytorch-cu130" }]
 torchxrayvision = { path = "../../external/torchxrayvision", editable = true }
+timika50k-pseudolabels = { path = "../timika50k_pseudolabels", editable = true }
 
 [[tool.uv.index]]
 name = "pytorch-cu130"
