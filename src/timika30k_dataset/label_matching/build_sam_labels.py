@@ -11,13 +11,13 @@ the same crop+scale every other label here uses), then run SAM fresh
 inside that box against the bone-suppressed image.
 
 Requires bone_suppression/build_variant.py to have already produced
-E:\\dataset\\timika-50k\\preprocessed_bone_suppressed\\images\\. Depends
-on repo/timika50k_pseudolabels for box loading (caaxr_source.py,
+E:\\dataset\\timika-30k\\preprocessed_bone_suppressed\\images\\. Depends
+on repo/timika30k_pseudolabels for box loading (caaxr_source.py,
 build_tb_box_masks.py's load_tbx11k/load_montgomery) and the SAM wrapper
 (sam_masks.py), reused rather than reimplemented, per this project's own
-timika50k-pseudolabels path dependency already added for this.
+timika30k-pseudolabels path dependency already added for this.
 
-Output: E:\\dataset\\timika-50k\\preprocessed_labels\\disease\\{class}\\{id}.png,
+Output: E:\\dataset\\timika-30k\\preprocessed_labels\\disease\\{class}\\{id}.png,
 appended to the same manifest.csv build_geometric_labels.py writes, same
 schema, method suffixed "_bone_suppressed_resegmented" so provenance
 stays distinguishable from the geometric-transform rows. Resumable.
@@ -32,17 +32,17 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 
-from timika50k_dataset.label_matching.transform import crop_box, transform_box
-from timika50k_pseudolabels.build_tb_box_masks import load_montgomery, load_tbx11k, montgomery_reading_classes
-from timika50k_pseudolabels.caaxr_source import build_stem_index, duplicate_stems, load_boxes
-from timika50k_pseudolabels.sam_masks import load_predictor, mask_from_box
+from timika30k_dataset.label_matching.transform import crop_box, transform_box
+from timika30k_pseudolabels.build_tb_box_masks import load_montgomery, load_tbx11k, montgomery_reading_classes
+from timika30k_pseudolabels.caaxr_source import build_stem_index, duplicate_stems, load_boxes
+from timika30k_pseudolabels.sam_masks import load_predictor, mask_from_box
 
-PREPROCESSED_MANIFEST = Path(r"C:\research\research-cxr-timika\dataset\timika-50k\preprocessed\manifest.csv")
-BONE_SUPPRESSED_ROOT = Path(r"E:\dataset\timika-50k\preprocessed_bone_suppressed")
+PREPROCESSED_MANIFEST = Path(r"C:\research\research-cxr-timika\dataset\timika-30k\preprocessed\manifest.csv")
+BONE_SUPPRESSED_ROOT = Path(r"E:\dataset\timika-30k\preprocessed_bone_suppressed")
 
-OUT_ROOT = Path(r"E:\dataset\timika-50k\preprocessed_labels\disease")
+OUT_ROOT = Path(r"E:\dataset\timika-30k\preprocessed_labels\disease")
 OUT_MANIFEST = OUT_ROOT / "manifest.csv"
-LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika50k_sam_labels.log")
+LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika30k_sam_labels.log")
 QC_PATH = LOG_PATH.with_suffix(".qc.jsonl")
 
 TB_LESION_CLASS = "tb_lesion"
@@ -83,7 +83,7 @@ def preprocessed_index() -> dict[str, dict]:
 def caaxr_jobs(by_key: dict[str, dict]) -> list[tuple[dict, str, list]]:
     dupes = duplicate_stems()
     boxes_by_stem = load_boxes(mappable_only=True)
-    stem_to_rel = build_stem_index(Path(r"E:\dataset\timika-50k\data\caaxr"))
+    stem_to_rel = build_stem_index(Path(r"E:\dataset\timika-30k\data\caaxr"))
     jobs = []
     for stem, boxes in boxes_by_stem.items():
         if stem in dupes:

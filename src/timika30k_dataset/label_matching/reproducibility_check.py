@@ -27,20 +27,20 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from timika50k_dataset.label_matching.transform import crop_box, transform_box
-from timika50k_pseudolabels.build_tb_box_masks import load_montgomery, load_tbx11k
-from timika50k_pseudolabels.caaxr_source import build_stem_index, load_boxes
-from timika50k_pseudolabels.sam_masks import load_predictor, load_rgb_uint8, mask_from_box
+from timika30k_dataset.label_matching.transform import crop_box, transform_box
+from timika30k_pseudolabels.build_tb_box_masks import load_montgomery, load_tbx11k
+from timika30k_pseudolabels.caaxr_source import build_stem_index, load_boxes
+from timika30k_pseudolabels.sam_masks import load_predictor, load_rgb_uint8, mask_from_box
 
-TIMIKA_ROOT = Path(r"E:\dataset\timika-50k")
+TIMIKA_ROOT = Path(r"E:\dataset\timika-30k")
 DATA_ROOT = TIMIKA_ROOT / "data"
 LABEL_ROOT = TIMIKA_ROOT / "labels" / "disease"
-BONE_SUPPRESSED_ROOT = Path(r"E:\dataset\timika-50k\preprocessed_bone_suppressed")
-PREPROCESSED_LABELS_ROOT = Path(r"E:\dataset\timika-50k\preprocessed_labels\disease")
+BONE_SUPPRESSED_ROOT = Path(r"E:\dataset\timika-30k\preprocessed_bone_suppressed")
+PREPROCESSED_LABELS_ROOT = Path(r"E:\dataset\timika-30k\preprocessed_labels\disease")
 PREPROCESSED_LABELS_MANIFEST = PREPROCESSED_LABELS_ROOT / "manifest.csv"
-PREPROCESSED_MANIFEST = Path(r"C:\research\research-cxr-timika\dataset\timika-50k\preprocessed\manifest.csv")
+PREPROCESSED_MANIFEST = Path(r"C:\research\research-cxr-timika\dataset\timika-30k\preprocessed\manifest.csv")
 
-LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika50k_reproducibility_check.log")
+LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika30k_reproducibility_check.log")
 REPORT_PATH = LOG_PATH.with_suffix(".report.json")
 
 SEED = 42

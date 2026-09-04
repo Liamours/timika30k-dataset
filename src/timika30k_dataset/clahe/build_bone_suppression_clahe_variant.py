@@ -1,7 +1,7 @@
 """Preprocessing variant 4 (bone suppression + CLAHE): applies CLAHE to
 bone_suppression/build_variant.py's own output, same clip_limit/tile_grid_size
 as variant 5 (clahe/apply.py). Written to
-E:\\dataset\\timika-50k\\preprocessed_bone_suppression_clahe\\.
+E:\\dataset\\timika-30k\\preprocessed_bone_suppression_clahe\\.
 
 CPU-only (OpenCV), no GPU contention. Resumable: an id already in the
 output manifest is skipped.
@@ -16,14 +16,14 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 
-from timika50k_dataset.clahe.apply import apply_clahe
+from timika30k_dataset.clahe.apply import apply_clahe
 
-SOURCE_ROOT = Path(r"E:\dataset\timika-50k\preprocessed_bone_suppressed")
+SOURCE_ROOT = Path(r"E:\dataset\timika-30k\preprocessed_bone_suppressed")
 SOURCE_MANIFEST = SOURCE_ROOT / "manifest.csv"
 
-OUT_ROOT = Path(r"E:\dataset\timika-50k\preprocessed_bone_suppression_clahe")
+OUT_ROOT = Path(r"E:\dataset\timika-30k\preprocessed_bone_suppression_clahe")
 OUT_MANIFEST = OUT_ROOT / "manifest.csv"
-LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika50k_bone_suppression_clahe.log")
+LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika30k_bone_suppression_clahe.log")
 
 
 def setup_logging() -> logging.Logger:

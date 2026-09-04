@@ -17,8 +17,9 @@ datasheet says "662 PA chest X-rays ... includes pediatric AP views", a
 real, documented exception with no per-image breakdown available anywhere
 in this store, so "pa" would be factually wrong for an unidentified
 subset. Checked and confirmed absent, not just unchecked: chestxdet,
-tbx11k, siimacr, covidrad carry no per-image view-position field in any
-label file this store has (2026-09-03 survey).
+tbx11k, siimacr carry no per-image view-position field in any label file
+this store has (2026-09-03 survey; covidrad was also checked and
+confirmed absent the same way, moot now that it's dropped, 2026-09-04).
 
 Rewrites manifest.csv in place (same row order, one new column appended);
 the C: project copy is preprocessed/'s only copy, per the 2026-09-02
@@ -30,7 +31,7 @@ import csv
 import re
 from pathlib import Path
 
-MANIFEST_PATH = Path(r"C:\research\research-cxr-timika\dataset\timika-50k\preprocessed\manifest.csv")
+MANIFEST_PATH = Path(r"C:\research\research-cxr-timika\dataset\timika-30k\preprocessed\manifest.csv")
 VIEW_POSITION_RE = re.compile(r"vp-(ap|pa|ll|rl)")
 
 

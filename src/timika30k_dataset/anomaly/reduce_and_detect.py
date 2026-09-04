@@ -24,7 +24,7 @@ from sklearn.decomposition import PCA
 from sklearn.ensemble import IsolationForest
 import umap
 
-DEFAULT_OUT_ROOT = Path(r"C:\research\research-cxr-timika\output\timika50k_dataset\anomaly_detection")
+DEFAULT_OUT_ROOT = Path(r"C:\research\research-cxr-timika\output\timika30k_dataset\anomaly_detection")
 SEED = 42
 
 

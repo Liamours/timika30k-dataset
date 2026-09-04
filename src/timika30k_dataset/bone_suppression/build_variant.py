@@ -1,7 +1,7 @@
 """Bone-suppression preprocessing variant: runs every image in
-dataset/timika-50k/preprocessed/ (the existing 512x512 center-crop+resize
+dataset/timika-30k/preprocessed/ (the existing 512x512 center-crop+resize
 variant) through ResNet-BS, writing the result to
-E:\\dataset\\timika-50k\\preprocessed_bone_suppressed\\images\\, same id
+E:\\dataset\\timika-30k\\preprocessed_bone_suppressed\\images\\, same id
 and manifest schema as the source, plus a bone_suppressed_relative_path
 column. Written to E: rather than following preprocessed/'s own C:-only
 convention: C: had under 12 GB free when this was built, E: had 135 GB.
@@ -37,17 +37,17 @@ from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
-from timika50k_dataset.bone_suppression.model import load_model
+from timika30k_dataset.bone_suppression.model import load_model
 
-SOURCE_ROOT = Path(r"C:\research\research-cxr-timika\dataset\timika-50k\preprocessed")
+SOURCE_ROOT = Path(r"C:\research\research-cxr-timika\dataset\timika-30k\preprocessed")
 SOURCE_MANIFEST = SOURCE_ROOT / "manifest.csv"
 WEIGHTS_NPZ = Path(r"C:\research\research-cxr-timika\weights\resnet-bonesuppression-jsrt\resnet_bs_weights.npz")
 
 # preprocessed_relative_path already reads "images/{id}.png", relative to
 # SOURCE_ROOT/OUT_ROOT themselves, not to an images/ subfolder joined here.
-OUT_ROOT = Path(r"E:\dataset\timika-50k\preprocessed_bone_suppressed")
+OUT_ROOT = Path(r"E:\dataset\timika-30k\preprocessed_bone_suppressed")
 OUT_MANIFEST = OUT_ROOT / "manifest.csv"
-LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika50k_bone_suppression.log")
+LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika30k_bone_suppression.log")
 
 BATCH_SIZE = 16
 LOAD_WORKERS = 4

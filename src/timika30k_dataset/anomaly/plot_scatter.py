@@ -11,7 +11,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-DEFAULT_OUT_ROOT = Path(r"C:\research\research-cxr-timika\output\timika50k_dataset\anomaly_detection")
+DEFAULT_OUT_ROOT = Path(r"C:\research\research-cxr-timika\output\timika30k_dataset\anomaly_detection")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--out-root", default=str(DEFAULT_OUT_ROOT))
@@ -46,7 +46,7 @@ if known_set:
     known_m = np.array([i in known_set for i in ids])
     ax.scatter(xy[known_m, 0], xy[known_m, 1], s=140, marker="x", color="white", linewidths=2.2, label="known anomaly")
 
-ax.set_title(f"timika-50k PSPNet embeddings, UMAP 2D  ({len(ids)} images, {int(flag_m.sum())} flagged)", color="#e8e6e1", fontsize=12)
+ax.set_title(f"timika-30k PSPNet embeddings, UMAP 2D  ({len(ids)} images, {int(flag_m.sum())} flagged)", color="#e8e6e1", fontsize=12)
 ax.tick_params(colors="#9a9a94")
 for spine in ax.spines.values():
     spine.set_color("#2a2d33")

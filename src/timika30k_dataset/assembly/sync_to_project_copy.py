@@ -1,7 +1,7 @@
-"""Mirrors E:\\dataset\\timika-50k\\ (canonical) into dataset/timika-50k/
+"""Mirrors E:\\dataset\\timika-30k\\ (canonical) into dataset/timika-30k/
 (this project's own, user-approved second copy, see dataset/manifest.md's
-timika-50k row) so the C:-only phases (preprocessing, splits,
-view_position, all of analyses/timika50k_preprocessing/) have something to
+timika-30k row) so the C:-only phases (preprocessing, splits,
+view_position, all of analyses/timika30k_preprocessing/) have something to
 read. Mirrors data/ and labels/ only, same asymmetry documented in
 dataset/manifest.md and this repo's own README: preprocessed/ is built
 fresh on C: by build_preprocessed.py and never sourced from E:, so a
@@ -26,10 +26,10 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-SOURCE_ROOT = Path(r"E:\dataset\timika-50k")
-DEST_ROOT = Path(r"C:\research\research-cxr-timika\dataset\timika-50k")
+SOURCE_ROOT = Path(r"E:\dataset\timika-30k")
+DEST_ROOT = Path(r"C:\research\research-cxr-timika\dataset\timika-30k")
 MIRRORED_SUBDIRS = ("data", "labels")
-LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika50k_sync_to_project_copy.log")
+LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika30k_sync_to_project_copy.log")
 
 
 def setup_logging() -> None:
@@ -72,7 +72,7 @@ def main() -> None:
 
     setup_logging()
     log = logging.getLogger(__name__)
-    log.info(f"syncing {len(pending)} of {len(files)} files, E:\\dataset\\timika-50k -> {DEST_ROOT}")
+    log.info(f"syncing {len(pending)} of {len(files)} files, E:\\dataset\\timika-30k -> {DEST_ROOT}")
 
     for src, dest in tqdm(pending, desc="syncing to project copy"):
         dest.parent.mkdir(parents=True, exist_ok=True)

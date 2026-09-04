@@ -28,8 +28,8 @@ import numpy as np
 from PIL import Image, ImageDraw
 from sklearn.cluster import HDBSCAN
 
-DEFAULT_OUT_ROOT = Path(r"C:\research\research-cxr-timika\output\timika50k_dataset\anomaly_detection")
-DATA_ROOT = Path(r"E:\dataset\timika-50k\data")
+DEFAULT_OUT_ROOT = Path(r"C:\research\research-cxr-timika\output\timika30k_dataset\anomaly_detection")
+DATA_ROOT = Path(r"E:\dataset\timika-30k\data")
 SIXTEEN_BIT_MODES = {"I", "I;16", "I;16B", "I;16L", "I;16N"}
 TILE = 220
 
@@ -117,7 +117,7 @@ def main() -> None:
     for c in real_clusters:
         m = labels == c
         ax.scatter(xy[m, 0], xy[m, 1], s=12, color=colors[c], alpha=0.75, linewidths=0, label=f"cluster {c} ({int(m.sum())})")
-    ax.set_title(f"timika-50k PSPNet embeddings, UMAP 2D  ({len(ids)} images, HDBSCAN min_cluster_size={args.min_cluster_size})", color=INK, fontsize=12)
+    ax.set_title(f"timika-30k PSPNet embeddings, UMAP 2D  ({len(ids)} images, HDBSCAN min_cluster_size={args.min_cluster_size})", color=INK, fontsize=12)
     ax.tick_params(colors=INK)
     for spine in ax.spines.values():
         spine.set_color("#888888")

@@ -13,7 +13,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-DEFAULT_OUT_ROOT = Path(r"C:\research\research-cxr-timika\output\timika50k_dataset\anomaly_detection")
+DEFAULT_OUT_ROOT = Path(r"C:\research\research-cxr-timika\output\timika30k_dataset\anomaly_detection")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--out-root", default=str(DEFAULT_OUT_ROOT))
@@ -49,7 +49,7 @@ ax.scatter(xy[~hl_mask, 0], xy[~hl_mask, 1], s=10, color=ORANGE, alpha=0.55, lin
 ax.scatter(xy[hl_mask, 0], xy[hl_mask, 1], s=170, color=BLUE, alpha=0.95, linewidths=1.4, edgecolors="white",
            label=f"known non-chest x-ray ({int(hl_mask.sum())})", zorder=5)
 
-title = args.title or f"timika-50k PSPNet embeddings, UMAP 2D  ({len(ids)} images, no supervised labels)"
+title = args.title or f"timika-30k PSPNet embeddings, UMAP 2D  ({len(ids)} images, no supervised labels)"
 ax.set_title(title, color=INK, fontsize=13)
 ax.tick_params(colors=INK)
 for spine in ax.spines.values():

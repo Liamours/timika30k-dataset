@@ -1,6 +1,6 @@
 """Preprocessing variant 5 (CLAHE only): applies CLAHE directly to
 preprocessed/'s own 512x512 rescaled image, no bone suppression. Written
-to E:\\dataset\\timika-50k\\preprocessed_clahe\\, following the same
+to E:\\dataset\\timika-30k\\preprocessed_clahe\\, following the same
 E:-not-C: choice build_variant.py made when C: was low on space.
 
 CPU-only (OpenCV), no GPU contention with anything else running.
@@ -16,14 +16,14 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 
-from timika50k_dataset.clahe.apply import apply_clahe
+from timika30k_dataset.clahe.apply import apply_clahe
 
-SOURCE_ROOT = Path(r"C:\research\research-cxr-timika\dataset\timika-50k\preprocessed")
+SOURCE_ROOT = Path(r"C:\research\research-cxr-timika\dataset\timika-30k\preprocessed")
 SOURCE_MANIFEST = SOURCE_ROOT / "manifest.csv"
 
-OUT_ROOT = Path(r"E:\dataset\timika-50k\preprocessed_clahe")
+OUT_ROOT = Path(r"E:\dataset\timika-30k\preprocessed_clahe")
 OUT_MANIFEST = OUT_ROOT / "manifest.csv"
-LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika50k_clahe.log")
+LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika30k_clahe.log")
 
 
 def setup_logging() -> logging.Logger:

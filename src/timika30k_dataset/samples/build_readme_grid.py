@@ -1,5 +1,5 @@
-"""Text-free sample grid for the GitHub README: 2 examples per source (7
-sources x 2 = 14 cells), each the preprocessed image with its organ-region
+"""Text-free sample grid for the GitHub README: 2 examples per source (6
+sources x 2 = 12 cells), each the preprocessed image with its organ-region
 mask (cyan outline + low-opacity cyan fill, all 6 zones merged to one
 color, since the grid draws no per-zone distinction) and, where a disease
 label exists, the union of its disease masks (orange outline + low-opacity
@@ -16,11 +16,11 @@ from PIL import Image
 from skimage.morphology import erosion
 from tqdm import tqdm
 
-TIMIKA_ROOT = Path(r"E:\dataset\timika-50k")
+TIMIKA_ROOT = Path(r"E:\dataset\timika-30k")
 DISEASE_MANIFEST = TIMIKA_ROOT / "labels" / "disease" / "manifest.csv"
-OUT_PATH = Path(r"C:\research\research-cxr-timika\repo\timika50k_dataset\sample_grid.png")
+OUT_PATH = Path(r"C:\research\research-cxr-timika\repo\timika30k_dataset\sample_grid.png")
 
-SOURCES = ("shenzhen", "montgomery", "tbx11k", "chestxdet", "covidrad", "caaxr", "siimacr")
+SOURCES = ("shenzhen", "montgomery", "tbx11k", "chestxdet", "caaxr", "siimacr")
 CYAN = np.array([0, 210, 210], dtype=np.float32)
 ORANGE = np.array([255, 140, 0], dtype=np.float32)
 FILL_ALPHA = 0.28

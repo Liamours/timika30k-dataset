@@ -35,13 +35,13 @@
   },
   "@type": "sc:Dataset",
   "conformsTo": "http://mlcommons.org/croissant/1.0",
-  "name": "timika-50k",
-  "description": "Pooled chest radiograph dataset for the Timika TB severity score pipeline: 51,659 images across 7 public sources (Shenzhen, Montgomery, TBX11K, ChestX-Det, COVID-19 Radiography Database, BIMCV-CAAXR, SIIM-ACR Pneumothorax), each already carrying real localization (box, mask, or polygon), pseudolabeled with organ-region (6-zone lung) and partial disease-finding segmentation. Derived, not an original collection; see DATASHEET.md for the full 7-section datasheet and dataset/manifest.md for per-source provenance.",
-  "citeAs": "Internal derived dataset, research-cxr-timika project. No standalone publication; cite the 7 component sources individually, see dataset/manifest.md.",
-  "license": "https://schema.org/inapplicable -- no single license, inherits all 7 source licenses, restricted and no_redistribution, see DATASHEET.md Distribution section",
-  "version": "1.0.0",
+  "name": "timika-30k",
+  "description": "Pooled chest radiograph dataset for the Timika TB severity score pipeline: 30,494 images across 6 public sources (Shenzhen, Montgomery, TBX11K, ChestX-Det, BIMCV-CAAXR, SIIM-ACR Pneumothorax), each already carrying real localization (box, mask, or polygon), pseudolabeled with organ-region (6-zone lung) and partial disease-finding segmentation. Derived, not an original collection; see DATASHEET.md for the full 7-section datasheet and dataset/manifest.md for per-source provenance.",
+  "citeAs": "Internal derived dataset, research-cxr-timika project. No standalone publication; cite the 6 component sources individually, see dataset/manifest.md.",
+  "license": "https://schema.org/inapplicable -- no single license, inherits all 6 source licenses, restricted and no_redistribution, see DATASHEET.md Distribution section",
+  "version": "2.0.0",
   "datePublished": "2026-08-27",
-  "dateModified": "2026-09-03",
+  "dateModified": "2026-09-04",
   "isLiveDataset": true,
   "creator": {
     "@type": "sc:Organization",
@@ -52,7 +52,7 @@
       "@type": "cr:FileSet",
       "@id": "images",
       "name": "images",
-      "description": "51,659 source radiographs, one subfolder per source, original filenames preserved. Not publicly downloadable, this FileSet describes the local layout, no containedIn archive exists since the dataset is internal-only, see DATASHEET.md Distribution section.",
+      "description": "30,494 source radiographs, one subfolder per source, original filenames preserved. Not publicly downloadable, this FileSet describes the local layout, no containedIn archive exists since the dataset is internal-only, see DATASHEET.md Distribution section.",
       "encodingFormat": "image/png",
       "includes": "data/*/**"
     },
@@ -89,7 +89,7 @@
       "description": "One record per image in the preprocessed/ layer.",
       "field": [
         { "@type": "cr:Field", "@id": "preprocessed_images/id", "name": "id", "description": "Flat filename, unique per image.", "dataType": "sc:Text", "source": { "fileObject": { "@id": "preprocessed-manifest" }, "extract": { "column": "id" } } },
-        { "@type": "cr:Field", "@id": "preprocessed_images/source", "name": "source", "description": "One of the 7 component datasets.", "dataType": "sc:Text", "source": { "fileObject": { "@id": "preprocessed-manifest" }, "extract": { "column": "source" } } },
+        { "@type": "cr:Field", "@id": "preprocessed_images/source", "name": "source", "description": "One of the 6 component datasets.", "dataType": "sc:Text", "source": { "fileObject": { "@id": "preprocessed-manifest" }, "extract": { "column": "source" } } },
         { "@type": "cr:Field", "@id": "preprocessed_images/split", "name": "split", "description": "Native/folder-derived split token where a source defines one, \"-\" otherwise; NOT the train/val/test assignment, see splits_official.csv/splits_fair.csv for that.", "dataType": "sc:Text", "source": { "fileObject": { "@id": "preprocessed-manifest" }, "extract": { "column": "split" } } },
         { "@type": "cr:Field", "@id": "preprocessed_images/patient_id", "name": "patient_id", "description": "\"-\" where the source has no real per-patient identifier.", "dataType": "sc:Text", "source": { "fileObject": { "@id": "preprocessed-manifest" }, "extract": { "column": "patient_id" } } },
         { "@type": "cr:Field", "@id": "preprocessed_images/view_position", "name": "view_position", "description": "ap/pa/ll or \"-\"; real data for exactly caaxr (per-image) and montgomery (per-source constant), see DATASHEET.md.", "dataType": "sc:Text", "source": { "fileObject": { "@id": "preprocessed-manifest" }, "extract": { "column": "view_position" } } }

@@ -1,4 +1,4 @@
-"""The exact geometric transform analyses/timika50k_preprocessing/build_preprocessed.py's
+"""The exact geometric transform analyses/timika30k_preprocessing/build_preprocessed.py's
 own center_crop_resize() applies to images (center-crop to a square of
 side min(h,w), then resize to IMG_SIZE), reimplemented here for labels:
 a mask variant (nearest-neighbor, keeps exact 0/255 values) and a box

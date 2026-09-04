@@ -1,6 +1,11 @@
-"""Phase 2: assemble timika-50k's data/ from its 7 canonical sources.
+"""Phase 2: assemble timika-30k's data/ from its 6 canonical sources.
+COVID-19 Radiography Database (covidrad) was dropped 2026-09-04: no
+disease-level box or mask for any of its 3 abnormal classes, only an
+organ-level lung mask, and none of its own labels map onto this
+project's taxonomy anywhere in the codebase. Its own canonical copy at
+E:\\dataset\\covid19_radiography\\ is untouched.
 
-Eligibility, per dataset/manifest.md's timika-50k row: a source image
+Eligibility, per dataset/manifest.md's timika-30k row: a source image
 qualifies only if it already carries some form of localization (box,
 mask, or polygon), and isn't a known duplicate. This script encodes both
 halves of that rule per source:
@@ -9,21 +14,21 @@ halves of that rule per source:
   Montgomery/Shenzhen/DA/DB augmentation, not part of its core release)
 - a duplicate exclusion, any file its own source's own
   labels/quality_flags.csv.bz2 marks status=="duplicate" (read the same
-  way repo/timika50k_pseudolabels/src/timika50k_pseudolabels/build_ds_group.py
+  way repo/timika30k_pseudolabels/src/timika30k_pseudolabels/build_ds_group.py
   already does; a source with no such file, e.g. Shenzhen or Montgomery,
   has an empty duplicate set, not an error)
 
-What survives is copied into timika-50k/data/{short_name}/, same
+What survives is copied into timika-30k/data/{short_name}/, same
 relative path each file already has under its own source's data/. The
 canonical_name -> short_name mapping (e.g. bimcv_caaxr -> caaxr) matches
-timika-50k's own existing data/ layout, not the longer names each source
+timika-30k's own existing data/ layout, not the longer names each source
 uses at E:\\dataset\\.
 
 --dry-run reports per-source included counts with no file I/O (just
 directory listing and duplicate-set reads), for checking this script's
 own logic against dataset/manifest.md's documented per-source counts
-(662, 138, 11490, 3577, 21165, 2539, 12088, total 51659) before spending
-the time on a real, ~30GB copy. Resumable: an existing destination file
+(662, 138, 11490, 3577, 2539, 12088, total 30494) before spending
+the time on a real copy. Resumable: an existing destination file
 whose size matches the source file is treated as already copied.
 """
 from __future__ import annotations
@@ -39,8 +44,8 @@ from pathlib import Path
 from tqdm import tqdm
 
 CANONICAL_ROOT = Path(r"E:\dataset")
-DATA_ROOT = Path(r"E:\dataset\timika-50k\data")
-LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika50k_assembly.log")
+DATA_ROOT = Path(r"E:\dataset\timika-30k\data")
+LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika30k_assembly.log")
 
 
 @dataclass(frozen=True)
@@ -55,7 +60,6 @@ SOURCES = (
     SourceConfig("montgomery", "montgomery"),
     SourceConfig("tbx11k", "tbx11k", exclude_subpaths=("extra",)),
     SourceConfig("chestxdet", "chestxdet"),
-    SourceConfig("covid19_radiography", "covidrad"),
     SourceConfig("bimcv_caaxr", "caaxr"),
     SourceConfig("siim_acr_pneumothorax", "siimacr"),
 )

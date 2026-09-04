@@ -16,7 +16,7 @@ SAM/box-derived classes (sam_box_mask_*) are out of scope here: those get
 re-segmented against the bone-suppressed pixels instead of geometrically
 warped, see build_sam_labels.py.
 
-Output: E:\\dataset\\timika-50k\\preprocessed_labels\\disease\\{class}\\{id}.png,
+Output: E:\\dataset\\timika-30k\\preprocessed_labels\\disease\\{class}\\{id}.png,
 plus a manifest.csv mirroring labels/disease/manifest.csv's own schema
 (same columns, image_relative_path now pointing at preprocessed/'s own
 relative path instead of data/). Resumable: an id+class already in the
@@ -32,15 +32,15 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 
-from timika50k_dataset.label_matching.transform import crop_box, transform_mask
+from timika30k_dataset.label_matching.transform import crop_box, transform_mask
 
-TIMIKA_ROOT = Path(r"E:\dataset\timika-50k")
+TIMIKA_ROOT = Path(r"E:\dataset\timika-30k")
 DISEASE_MANIFEST = TIMIKA_ROOT / "labels" / "disease" / "manifest.csv"
-PREPROCESSED_MANIFEST = Path(r"C:\research\research-cxr-timika\dataset\timika-50k\preprocessed\manifest.csv")
+PREPROCESSED_MANIFEST = Path(r"C:\research\research-cxr-timika\dataset\timika-30k\preprocessed\manifest.csv")
 
-OUT_ROOT = Path(r"E:\dataset\timika-50k\preprocessed_labels\disease")
+OUT_ROOT = Path(r"E:\dataset\timika-30k\preprocessed_labels\disease")
 OUT_MANIFEST = OUT_ROOT / "manifest.csv"
-LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika50k_geometric_labels.log")
+LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika30k_geometric_labels.log")
 
 CONFIRMED_NEGATIVE_METHODS = {
     "real_confirmed_negative_rle",

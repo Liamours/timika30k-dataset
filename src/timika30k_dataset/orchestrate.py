@@ -1,19 +1,19 @@
-"""Runs timika-50k's full build pipeline end to end, in the dependency
-order documented in dataset/manifest.md's timika-50k row and this repo's
+"""Runs timika-30k's full build pipeline end to end, in the dependency
+order documented in dataset/manifest.md's timika-30k row and this repo's
 own README: 11 phases, each a real script already built and already run
 once by hand for its own part of the dataset, invoked here in sequence
 instead of by memory.
 
 Every phase is its own uv project (a separate pyproject.toml/dependency
-set: repo/timika50k_dataset, repo/timika50k_pseudolabels,
-analyses/timika50k_organ_labels, analyses/timika50k_preprocessing), so
+set: repo/timika30k_dataset, repo/timika30k_pseudolabels,
+analyses/timika30k_organ_labels, analyses/timika30k_preprocessing), so
 this script shells out to `uv run` inside that phase's own directory
 rather than importing across projects with incompatible dependencies.
 
 Phases 1-3 (assembly, organ-region labels, disease labels) read and write
-E:\\dataset\\timika-50k\\, the canonical copy. Phase 4 mirrors data/ and
-labels/ from there into dataset/timika-50k/, this project's own
-user-approved second copy (dataset/manifest.md's timika-50k row).
+E:\\dataset\\timika-30k\\, the canonical copy. Phase 4 mirrors data/ and
+labels/ from there into dataset/timika-30k/, this project's own
+user-approved second copy (dataset/manifest.md's timika-30k row).
 Phases 5-7 (preprocessing, splits, view_position) read only from that C:
 copy and write only there too, per the 2026-09-02 decision to keep
 preprocessed/ project-local; they are never mirrored back to E:.
@@ -37,7 +37,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 PROJECT_ROOT = Path(r"C:\research\research-cxr-timika")
-LOG_PATH = PROJECT_ROOT / "logs" / "timika50k_orchestrate.log"
+LOG_PATH = PROJECT_ROOT / "logs" / "timika30k_orchestrate.log"
 
 
 @dataclass(frozen=True)
@@ -50,63 +50,63 @@ class Phase:
 PHASES = (
     Phase(
         "assembly",
-        PROJECT_ROOT / "repo" / "timika50k_dataset",
-        ("uv", "run", "python", "-m", "timika50k_dataset.assembly.build_data"),
+        PROJECT_ROOT / "repo" / "timika30k_dataset",
+        ("uv", "run", "python", "-m", "timika30k_dataset.assembly.build_data"),
     ),
     Phase(
         "organ_region_labels",
-        PROJECT_ROOT / "analyses" / "timika50k_organ_labels",
+        PROJECT_ROOT / "analyses" / "timika30k_organ_labels",
         ("uv", "run", "python", "build_organ_region_labels.py"),
     ),
     Phase(
         "organ_region_manifest",
-        PROJECT_ROOT / "analyses" / "timika50k_organ_labels",
+        PROJECT_ROOT / "analyses" / "timika30k_organ_labels",
         ("uv", "run", "python", "build_organ_manifest.py"),
     ),
     Phase(
         "disease_confirmed_negatives",
-        PROJECT_ROOT / "repo" / "timika50k_pseudolabels",
-        ("uv", "run", "python", "-m", "timika50k_pseudolabels.build_confirmed_negatives"),
+        PROJECT_ROOT / "repo" / "timika30k_pseudolabels",
+        ("uv", "run", "python", "-m", "timika30k_pseudolabels.build_confirmed_negatives"),
     ),
     Phase(
         "disease_caaxr_box_masks",
-        PROJECT_ROOT / "repo" / "timika50k_pseudolabels",
-        ("uv", "run", "python", "-m", "timika50k_pseudolabels.build_caaxr_box_masks"),
+        PROJECT_ROOT / "repo" / "timika30k_pseudolabels",
+        ("uv", "run", "python", "-m", "timika30k_pseudolabels.build_caaxr_box_masks"),
     ),
     Phase(
         "disease_tb_box_masks",
-        PROJECT_ROOT / "repo" / "timika50k_pseudolabels",
-        ("uv", "run", "python", "-m", "timika50k_pseudolabels.build_tb_box_masks"),
+        PROJECT_ROOT / "repo" / "timika30k_pseudolabels",
+        ("uv", "run", "python", "-m", "timika30k_pseudolabels.build_tb_box_masks"),
     ),
     Phase(
         "disease_ds_group",
-        PROJECT_ROOT / "repo" / "timika50k_pseudolabels",
-        ("uv", "run", "python", "-m", "timika50k_pseudolabels.build_ds_group"),
+        PROJECT_ROOT / "repo" / "timika30k_pseudolabels",
+        ("uv", "run", "python", "-m", "timika30k_pseudolabels.build_ds_group"),
     ),
     Phase(
         "disease_manifest",
-        PROJECT_ROOT / "repo" / "timika50k_pseudolabels",
-        ("uv", "run", "python", "-m", "timika50k_pseudolabels.build_label_manifest"),
+        PROJECT_ROOT / "repo" / "timika30k_pseudolabels",
+        ("uv", "run", "python", "-m", "timika30k_pseudolabels.build_label_manifest"),
     ),
     Phase(
         "sync_to_project_copy",
-        PROJECT_ROOT / "repo" / "timika50k_dataset",
-        ("uv", "run", "python", "-m", "timika50k_dataset.assembly.sync_to_project_copy"),
+        PROJECT_ROOT / "repo" / "timika30k_dataset",
+        ("uv", "run", "python", "-m", "timika30k_dataset.assembly.sync_to_project_copy"),
     ),
     Phase(
         "preprocessing",
-        PROJECT_ROOT / "analyses" / "timika50k_preprocessing",
+        PROJECT_ROOT / "analyses" / "timika30k_preprocessing",
         ("uv", "run", "python", "build_preprocessed.py"),
     ),
     Phase(
         "splits",
-        PROJECT_ROOT / "analyses" / "timika50k_preprocessing",
+        PROJECT_ROOT / "analyses" / "timika30k_preprocessing",
         ("uv", "run", "python", "build_splits.py"),
     ),
     Phase(
         "view_position",
-        PROJECT_ROOT / "repo" / "timika50k_dataset",
-        ("uv", "run", "python", "-m", "timika50k_dataset.metadata.add_view_position"),
+        PROJECT_ROOT / "repo" / "timika30k_dataset",
+        ("uv", "run", "python", "-m", "timika30k_dataset.metadata.add_view_position"),
     ),
 )
 

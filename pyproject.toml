@@ -1,7 +1,7 @@
 [project]
-name = "timika50k-dataset"
+name = "timika30k-dataset"
 version = "0.1.0"
-description = "Reproducibility pipeline for timika-50k: download, labels/pseudo-labels, preprocessing variants, dataset QC"
+description = "Reproducibility pipeline for timika-30k: download, labels/pseudo-labels, preprocessing variants, dataset QC"
 requires-python = ">=3.12"
 dependencies = [
     "numpy>=1.26",
@@ -16,7 +16,7 @@ dependencies = [
     "scikit-learn>=1.4",
     "umap-learn>=0.5.6",
     "matplotlib>=3.8",
-    "timika50k-pseudolabels",
+    "timika30k-pseudolabels",
     "opencv-python-headless>=4.9",
 ]
 
@@ -29,7 +29,7 @@ dev = [
 torch = [{ index = "pytorch-cu130" }]
 torchvision = [{ index = "pytorch-cu130" }]
 torchxrayvision = { path = "../../external/torchxrayvision", editable = true }
-timika50k-pseudolabels = { path = "../timika50k_pseudolabels", editable = true }
+timika30k-pseudolabels = { path = "../timika30k_pseudolabels", editable = true }
 
 [[tool.uv.index]]
 name = "pytorch-cu130"
@@ -41,4 +41,4 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/timika50k_dataset"]
+packages = ["src/timika30k_dataset"]

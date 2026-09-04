@@ -1,4 +1,4 @@
-"""Embedding extraction for timika-50k image-quality anomaly detection,
+"""Embedding extraction for timika-30k image-quality anomaly detection,
 two interchangeable models (--model pspnet|densenet, see EXTRACTORS and
 each class's own docstring for the tradeoff): PSPNet's segmentation-model
 features are sensitive to how much recognizable lung structure is visible
@@ -10,7 +10,7 @@ models should agree those are unusual) from PSPNet-specific sensitivity
 to framing (only PSPNet's clusters would show it). Same shared
 preprocessing regardless of model (own-image min/max rescale,
 xrv.datasets.normalize, center-crop to square) as
-analyses/timika50k_organ_labels/build_organ_region_labels.py.
+analyses/timika30k_organ_labels/build_organ_region_labels.py.
 
 Chunked, resumable: writes embeddings_XXXXX.npy shards of CHUNK images
 each plus one running ids.csv (id, source, image_relative_path, shard,
@@ -36,10 +36,10 @@ from tqdm import tqdm
 SEED = 42
 torch.manual_seed(SEED)
 
-DATASET_ROOT = Path(r"E:\dataset\timika-50k")
+DATASET_ROOT = Path(r"E:\dataset\timika-30k")
 DATA_ROOT = DATASET_ROOT / "data"
-DEFAULT_OUT_ROOT = Path(r"C:\research\research-cxr-timika\output\timika50k_dataset\anomaly_detection\embeddings")
-LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika50k_anomaly_features.log")
+DEFAULT_OUT_ROOT = Path(r"C:\research\research-cxr-timika\output\timika30k_dataset\anomaly_detection\embeddings")
+LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika30k_anomaly_features.log")
 
 IMAGE_EXTENSIONS = {".png", ".webp", ".jpg", ".jpeg"}
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
