@@ -20,7 +20,7 @@ than a model repo:
 | Dependency spec (`pyproject.toml`) | Done |
 | Build code: assembly (phase 2 below) | Done, `src/timika50k_dataset/assembly/build_data.py` |
 | Build code: labels/pseudo-labels | Done, in `repo/timika50k_pseudolabels` (called into, not reimplemented here) |
-| Build code: preprocessing | 2 of 5 variants done or running, `analyses/timika50k_preprocessing` + `src/timika50k_dataset/bone_suppression/` |
+| Build code: preprocessing | 4 of 5 variants done, `analyses/timika50k_preprocessing` + `src/timika50k_dataset/bone_suppression/` + `src/timika50k_dataset/clahe/` |
 | Evaluation/QC code | Done: 3-agent independent verification pattern used throughout (leakage, official-split fidelity, ratio integrity, box-mask geometry, confirmed-negative source rules), embedding-based anomaly detection (`src/timika50k_dataset/anomaly/`) |
 | "Pretrained model" equivalent (the finished artifact) | Done, `E:\dataset\timika-50k\` + `dataset/timika-50k/` project copy |
 | README with exact reproduction commands | Done, `src/timika50k_dataset/orchestrate.py` + Usage below |
@@ -73,11 +73,11 @@ existing C: copy already 223,955/223,955 files in sync with E:, 0 pending.
 
 ## Preprocessing variants to build
 
-1. Raw image: no processing.
-2. Crop and normalize, no leakage across split: any learned statistic (crop bounds, normalization constants) fit on the training split only, per `splits_official.csv`/`splits_fair.csv`.
-3. Bone suppression: `external/CXR-bone-suppression` is vendored (Rajaraman et al. 2021, *Diagnostics* 11:840, ResNet-BS architecture, Keras/TensorFlow, weights at `weights/resnet-bonesuppression-jsrt/`), never evaluated on this project's own images. It ships as a Jupyter notebook (`bone_suppression.ipynb`), not an importable package; inference code needs extracting. Runs on 256x256 grayscale input per its own README.
-4. Bone suppression + CLAHE: variant 3's output through CLAHE (`skimage.exposure.equalize_adapthist` or `cv2.createCLAHE`).
-5. CLAHE only: the same CLAHE step applied directly to the rescaled image, no bone suppression.
+1. Raw image: no processing. Already satisfied by `data/` itself, nothing to build.
+2. Crop and normalize, no leakage across split: `analyses/timika50k_preprocessing`, done.
+3. Bone suppression: done, `src/timika50k_dataset/bone_suppression/`. Ported the vendored Keras ResNet-BS (`external/CXR-bone-suppression`, Rajaraman et al. 2021) to PyTorch, reusing an existing validated port (`analyses/bone_suppression_sample/pytorch_port/`) rather than re-extracting from the notebook. Runs directly on the already-512x512 preprocessed image (fully convolutional, no fixed input size despite the original notebook always resizing to 256x256 first), so it needs no geometry of its own for labels to track. 51,659/51,659, `E:\dataset\timika-50k\preprocessed_bone_suppressed\`.
+4. Bone suppression + CLAHE: done, `src/timika50k_dataset/clahe/build_bone_suppression_clahe_variant.py`. 51,659/51,659, `E:\dataset\timika-50k\preprocessed_bone_suppression_clahe\`.
+5. CLAHE only: done, `src/timika50k_dataset/clahe/build_clahe_variant.py`. `cv2.createCLAHE`, `clip_limit=2.0`/`tile_grid_size=(8,8)` (`clahe/apply.py`'s own docstring has the literature basis, a corroborated range rather than one pinned citation). 51,659/51,659, `E:\dataset\timika-50k\preprocessed_clahe\`.
 
 ## Status
 
@@ -111,10 +111,20 @@ finished the same day:
   only; SAM/box-derived masks: re-segmented against the bone-suppressed
   pixels rather than warped, since a stale mask would carry over whatever
   bone confounding it had before suppression). Output at
-  `E:\dataset\timika-50k\preprocessed_labels\`.
+  `E:\dataset\timika-50k\preprocessed_labels\`. Includes
+  `reproducibility_check.py`: real masks/RLE/confirmed-negatives are
+  deterministic by construction, so this re-runs SAM (the one method
+  family without a determinism guarantee) on a seeded sample and reports
+  IoU against the saved mask; 20/20 sampled rows across 4 source/method
+  groups landed at 0.9996-1.0 (found and fixed a real bug in the check
+  script itself along the way, see its own module docstring).
+- `src/timika50k_dataset/clahe/`: variants 4 and 5, see below.
 
-The orchestrator has now been run end to end for real, not only
-dry-run-verified: phase 2 through view_position, 2026-09-04. The 4
-remaining preprocessing variants (CLAHE, bone suppression + CLAHE, and a
-no-leakage crop+normalize variant) are separate, additive work, not
-started; bone suppression itself (variant 3) is running.
+The orchestrator has been run end to end for real, not only
+dry-run-verified: every phase, 2026-09-04. All 5 preprocessing variants
+are now built. Still open: the disease-label layer itself is incomplete
+(the disease-segmentation model needed for ~19,500 images, see
+DATASHEET.md's Composition section, remains unusable after 2 failed
+retrains; a fix (foreground-oversampled batch sampling, `repo/timika_segmentation_models`)
+is built and smoke-tested but the actual retrain, an up-to-~28-hour run,
+hasn't been launched).
