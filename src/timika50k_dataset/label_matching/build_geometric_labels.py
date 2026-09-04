@@ -29,7 +29,6 @@ import logging
 from pathlib import Path
 
 import numpy as np
-import torch
 from PIL import Image
 from tqdm import tqdm
 
@@ -50,7 +49,6 @@ CONFIRMED_NEGATIVE_METHODS = {
 }
 REAL_MASK_PREFIX = "real_mask"
 IMG_SIZE = 512
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def setup_logging() -> logging.Logger:
@@ -132,7 +130,7 @@ def main() -> None:
             out = np.zeros((IMG_SIZE, IMG_SIZE), dtype=np.uint8)
         else:
             src_mask = np.array(Image.open(TIMIKA_ROOT / "labels" / "disease" / disease_row["label_relative_path"]))
-            transformed = transform_mask(src_mask, y0, x0, crop, DEVICE)
+            transformed = transform_mask(src_mask, y0, x0, crop)
             out = (transformed > 0).astype(np.uint8) * 255
 
         out_path = OUT_ROOT / rel

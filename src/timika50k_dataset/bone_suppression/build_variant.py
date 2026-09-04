@@ -12,17 +12,29 @@ for why this is deliberate, not just convenient), so the output aligns
 pixel-for-pixel with the source preprocessed image, and this variant
 needs no geometry of its own for any existing label to track.
 
+A first version loaded, ran, and saved each batch fully sequentially,
+leaving the GPU idle during every disk read and write (visibly a sawtooth
+in Task Manager's GPU graph, not a smooth line). Fixed here two ways: a
+DataLoader with background workers prefetches the next batch's images
+while the GPU is still computing the current one, and each batch's 16
+output images save in parallel on a thread pool instead of one at a time.
+Manifest rows for a batch are still only appended after all of that
+batch's saves finish (coding.md's write-before-mark-done ordering), so
+the speedup is free of that correctness cost.
+
 Resumable: an id already in the output manifest is skipped.
 """
 from __future__ import annotations
 
 import csv
 import logging
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import numpy as np
 import torch
 from PIL import Image
+from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
 from timika50k_dataset.bone_suppression.model import load_model
@@ -38,7 +50,22 @@ OUT_MANIFEST = OUT_ROOT / "manifest.csv"
 LOG_PATH = Path(r"C:\research\research-cxr-timika\logs\timika50k_bone_suppression.log")
 
 BATCH_SIZE = 16
+LOAD_WORKERS = 4
+SAVE_WORKERS = 8
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+class PreprocessedImages(Dataset):
+    def __init__(self, rows: list[dict]):
+        self.rows = rows
+
+    def __len__(self) -> int:
+        return len(self.rows)
+
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, int]:
+        r = self.rows[idx]
+        arr = np.array(Image.open(SOURCE_ROOT / r["preprocessed_relative_path"]))
+        return torch.from_numpy(arr).float().div(255.0).unsqueeze(0), idx
 
 
 def setup_logging() -> None:
@@ -66,6 +93,12 @@ def append_rows(rows: list[dict], fieldnames: list[str]) -> None:
         writer.writerows(rows)
 
 
+def save_one(rel: Path, out_img: np.ndarray) -> None:
+    out_path = OUT_ROOT / rel
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    Image.fromarray(out_img, mode="L").save(out_path)
+
+
 def main() -> None:
     setup_logging()
     log = logging.getLogger(__name__)
@@ -80,28 +113,34 @@ def main() -> None:
     log.info(f"{len(source_rows)} total, {len(skip)} already done, {len(pending)} pending, device={DEVICE}")
 
     model = load_model(WEIGHTS_NPZ, DEVICE)
+    dataset = PreprocessedImages(pending)
+    loader = DataLoader(
+        dataset, batch_size=BATCH_SIZE, num_workers=LOAD_WORKERS,
+        pin_memory=(DEVICE.type == "cuda"), shuffle=False,
+    )
 
     written = 0
-    for i in tqdm(range(0, len(pending), BATCH_SIZE), desc="bone suppression"):
-        batch = pending[i : i + BATCH_SIZE]
-        arrays = [np.array(Image.open(SOURCE_ROOT / r["preprocessed_relative_path"])) for r in batch]
-        x = torch.from_numpy(np.stack(arrays)).float().div(255.0).unsqueeze(1).to(DEVICE)
+    with ThreadPoolExecutor(max_workers=SAVE_WORKERS) as pool:
+        for x, idxs in tqdm(loader, desc="bone suppression", total=len(loader)):
+            x = x.to(DEVICE, non_blocking=True)
 
-        with torch.no_grad():
-            pred = model(x)
+            with torch.no_grad(), torch.autocast(device_type=DEVICE.type):
+                pred = model(x)
 
-        pred_u8 = pred.squeeze(1).clamp(0, 1).mul(255).round().to(torch.uint8).cpu().numpy()
+            pred_u8 = pred.squeeze(1).clamp(0, 1).mul(255).round().to(torch.uint8).cpu().numpy()
 
-        out_rows = []
-        for r, out_img in zip(batch, pred_u8):
-            rel = Path(r["preprocessed_relative_path"])
-            out_path = OUT_ROOT / rel
-            out_path.parent.mkdir(parents=True, exist_ok=True)
-            Image.fromarray(out_img, mode="L").save(out_path)
-            out_rows.append({**r, "bone_suppressed_relative_path": str(rel)})
+            out_rows = []
+            futures = []
+            for idx, out_img in zip(idxs.tolist(), pred_u8):
+                r = pending[idx]
+                rel = Path(r["preprocessed_relative_path"])
+                futures.append(pool.submit(save_one, rel, out_img))
+                out_rows.append({**r, "bone_suppressed_relative_path": str(rel)})
 
-        append_rows(out_rows, fieldnames)
-        written += len(out_rows)
+            for fut in futures:
+                fut.result()
+            append_rows(out_rows, fieldnames)
+            written += len(out_rows)
 
     log.info(f"bone suppression complete: {written} written this run, {len(skip) + written} total")
 

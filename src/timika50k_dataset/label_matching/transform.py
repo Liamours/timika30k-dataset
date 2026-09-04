@@ -14,8 +14,7 @@ with the bone-suppressed variant. One transform, two image variants.
 from __future__ import annotations
 
 import numpy as np
-import torch
-import torch.nn.functional as F
+from PIL import Image
 
 IMG_SIZE = 512
 
@@ -27,11 +26,14 @@ def crop_box(h: int, w: int) -> tuple[int, int, int]:
     return y0, x0, crop
 
 
-def transform_mask(mask: np.ndarray, y0: int, x0: int, crop: int, device: torch.device) -> np.ndarray:
+def transform_mask(mask: np.ndarray, y0: int, x0: int, crop: int) -> np.ndarray:
+    # Nearest-neighbor on a mask is trivial work; CPU/PIL avoids the GPU
+    # round-trip entirely, which matters here since this runs at high
+    # frequency alongside bone_suppression/build_variant.py's own batched
+    # GPU inference, and the two were found to contend for the GPU badly.
     cropped = mask[y0 : y0 + crop, x0 : x0 + crop]
-    tensor = torch.from_numpy(cropped.astype(np.float32))[None, None, ...].to(device)
-    resized = F.interpolate(tensor, size=(IMG_SIZE, IMG_SIZE), mode="nearest")
-    return resized[0, 0].to("cpu").numpy().astype(mask.dtype)
+    resized = Image.fromarray(cropped).resize((IMG_SIZE, IMG_SIZE), resample=Image.NEAREST)
+    return np.array(resized).astype(mask.dtype)
 
 
 def transform_box(
