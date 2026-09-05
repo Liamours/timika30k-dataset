@@ -1,10 +1,11 @@
 """Text-free sample grid for the GitHub README: 2 examples per source (6
 sources x 2 = 12 cells), each the preprocessed image with its organ-region
-mask (cyan outline + low-opacity cyan fill, all 6 zones merged to one
-color, since the grid draws no per-zone distinction) and, where a disease
-label exists, the union of its disease masks (orange outline + low-opacity
-orange fill, all classes merged to one color). No captions, labels, or
-axes anywhere in the output image itself.
+mask (cyan fill, uniform across all 6 zones, outlined both around the
+lung silhouette and along every zone-to-zone boundary so the 6-zone split
+is visible) and, where a disease label exists, the union of its disease
+masks (orange outline + low-opacity orange fill, all classes merged to
+one color). No captions, labels, or axes anywhere in the output image
+itself.
 """
 from __future__ import annotations
 
@@ -13,7 +14,7 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image
-from skimage.morphology import erosion
+from skimage.morphology import dilation, erosion, footprint_rectangle
 from tqdm import tqdm
 
 TIMIKA_ROOT = Path(r"E:\dataset\timika-30k")
@@ -44,11 +45,42 @@ def load_gray_rgb(path: Path) -> np.ndarray:
     return np.stack([gray] * 3, axis=-1)
 
 
-def overlay(rgb: np.ndarray, mask: np.ndarray, color: np.ndarray) -> np.ndarray:
+def line_width_for(shape: tuple[int, int]) -> int:
+    # A 1px outline drawn at a source image's native resolution can vanish
+    # under the resize to THUMB (e.g. Shenzhen 3000x2919, Montgomery
+    # 4892x4020 downscale ~8-13x): scale the outline's own width by that
+    # same factor so it survives at roughly 1px in the final thumbnail.
+    return max(1, round(max(shape) / THUMB))
+
+
+def overlay(rgb: np.ndarray, mask: np.ndarray, color: np.ndarray, line_width: int = 1) -> np.ndarray:
     if not mask.any():
         return rgb
     eroded = erosion(mask, np.ones((3, 3), dtype=bool))
     edge = mask & ~eroded
+    if line_width > 1:
+        edge = dilation(edge, footprint_rectangle((line_width, line_width)))
+    out = rgb.astype(np.float32)
+    out[mask] = out[mask] * (1 - FILL_ALPHA) + color * FILL_ALPHA
+    out[edge] = color
+    return out.clip(0, 255).astype(np.uint8)
+
+
+def overlay_zones(rgb: np.ndarray, zone_id: np.ndarray, color: np.ndarray, line_width: int = 1) -> np.ndarray:
+    # Same fill/outline treatment as overlay(), but the outline is drawn at
+    # every zone_id-to-zone_id transition, not just background-to-foreground,
+    # so it traces the lung silhouette AND the 6-zone split (2 horizontal +
+    # 1 vertical) instead of just the outer boundary.
+    mask = zone_id > 0
+    if not mask.any():
+        return rgb
+    edge = np.zeros_like(mask)
+    edge[:-1, :] |= zone_id[:-1, :] != zone_id[1:, :]
+    edge[1:, :] |= zone_id[:-1, :] != zone_id[1:, :]
+    edge[:, :-1] |= zone_id[:, :-1] != zone_id[:, 1:]
+    edge[:, 1:] |= zone_id[:, :-1] != zone_id[:, 1:]
+    if line_width > 1:
+        edge = dilation(edge, footprint_rectangle((line_width, line_width)))
     out = rgb.astype(np.float32)
     out[mask] = out[mask] * (1 - FILL_ALPHA) + color * FILL_ALPHA
     out[edge] = color
@@ -98,16 +130,17 @@ def disease_union_mask(image_rel: Path, shape: tuple[int, int]) -> np.ndarray:
 def build_cell(image_rel: Path) -> np.ndarray:
     rgb = load_gray_rgb(TIMIKA_ROOT / image_rel)
     h, w = rgb.shape[:2]
+    line_width = line_width_for((h, w))
 
     source_rel = as_png(image_rel.relative_to(Path("data") / image_rel.parts[1]))
     organ_path = TIMIKA_ROOT / "labels" / "organ_region" / image_rel.parts[1] / source_rel
     if organ_path.exists():
-        organ = np.array(Image.open(organ_path)) > 0
-        if organ.shape == (h, w):
-            rgb = overlay(rgb, organ, CYAN)
+        zone_id = np.array(Image.open(organ_path))
+        if zone_id.shape == (h, w):
+            rgb = overlay_zones(rgb, zone_id, CYAN, line_width)
 
     disease = disease_union_mask(image_rel, (h, w))
-    rgb = overlay(rgb, disease, ORANGE)
+    rgb = overlay(rgb, disease, ORANGE, line_width)
 
     return np.array(Image.fromarray(rgb).resize((THUMB, THUMB)))
 
